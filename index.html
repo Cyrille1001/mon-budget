@@ -46,6 +46,7 @@ input,select,textarea{min-height:44px}
  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
  .filters{display:grid;grid-template-columns:1fr;gap:8px}
  .table-wrap{overflow:visible}
+ table{min-width:0;width:100%}
  table,thead,tbody,tr,td{display:block;width:100%}
  thead{display:none}
  tbody{display:grid;gap:10px}
@@ -76,7 +77,7 @@ input,select,textarea{min-height:44px}
     <div class="card"><div class="metric-label">Dépenses du mois</div><div class="metric" id="monthTotal">0 <small>FCFA</small></div></div>
     <div class="card"><div class="metric-label">Dépenses enregistrées ce mois</div><div class="metric" id="monthCount">0</div></div>
   </section>
-  <section class="layout">
+  <section class="layout" id="addSection">
     <div class="panel">
       <h2 id="formTitle">Ajouter une dépense</h2>
       <form id="expenseForm">
