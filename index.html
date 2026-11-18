@@ -26,6 +26,9 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 #notice{color:var(--green);font-size:13px;min-height:16px;margin-top:8px}
 @media(max-width:760px){.cards{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.filters{flex-direction:column;align-items:stretch}.table-wrap{overflow-x:auto}table{min-width:590px}}
 </style>
+  <link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#172b5b">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head>
 <body>
 <header><h1>Mon Budget</h1><p>Gérez vos dépenses quotidiennes et mensuelles simplement.</p></header>
@@ -118,6 +121,15 @@ $('monthFilter').addEventListener('change',()=>{$('dayFilter').value='';render()
 $('dayFilter').addEventListener('change',render);
 $('resetFilters').addEventListener('click',()=>{$('monthFilter').value=monthNow;$('dayFilter').value='';render();});
 render();
+</script>
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => console.log("Mon Budget est prêt !"))
+      .catch(error => console.error(error));
+  });
+}
 </script>
 </body>
 </html>
