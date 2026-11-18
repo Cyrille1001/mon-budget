@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Budget — Dépenses</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#172033;--muted:#697386;--primary:#3157d5;--line:#e7eaf1;--green:#16845b;--red:#c0394b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial, sans-serif}
+header{background:#172b5b;color:white;padding:22px max(18px,calc((100% - 1100px)/2))}
+header h1{margin:0 0 5px;font-size:24px}header p{margin:0;color:#d7e0ff;font-size:14px}
+main{max-width:1100px;margin:24px auto;padding:0 16px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 3px 12px #18264a08}
+.metric-label{color:var(--muted);font-size:13px}.metric{font-size:25px;font-weight:700;margin-top:8px}.metric small{font-size:14px;font-weight:500}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px}.panel h2{font-size:17px;margin:0 0 16px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d9deea;border-radius:8px;font:inherit;background:white;color:var(--ink)}
+button{border:0;border-radius:8px;padding:11px 14px;background:var(--primary);color:white;font-weight:600;cursor:pointer}
+button:hover{filter:brightness(.95)}.full{width:100%;margin-top:16px}.secondary{background:#edf1ff;color:#2747b5}.danger{background:#fff0f1;color:var(--red);padding:7px 9px}
+.filters{display:flex;gap:9px;align-items:end;margin-bottom:12px}.filters>div{flex:1}.filters label{margin-top:0}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px}
+.amount{font-weight:700;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:30px 8px}
+.summary{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 0;color:var(--muted);font-size:13px}
+.category{display:inline-block;padding:4px 8px;border-radius:20px;background:#eef2ff;color:#304db1;font-size:12px}
+#notice{color:var(--green);font-size:13px;min-height:16px;margin-top:8px}
+@media(max-width:760px){.cards{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.filters{flex-direction:column;align-items:stretch}.table-wrap{overflow-x:auto}table{min-width:590px}}
+</style>
+</head>
+<body>
+<header><h1>Mon Budget</h1><p>Gérez vos dépenses quotidiennes et mensuelles simplement.</p></header>
+<main>
+  <section class="cards">
+    <div class="card"><div class="metric-label">Dépenses du jour</div><div class="metric" id="todayTotal">0 <small>FCFA</small></div></div>
+    <div class="card"><div class="metric-label">Dépenses du mois</div><div class="metric" id="monthTotal">0 <small>FCFA</small></div></div>
+    <div class="card"><div class="metric-label">Dépenses enregistrées ce mois</div><div class="metric" id="monthCount">0</div></div>
+  </section>
+  <section class="layout">
+    <div class="panel">
+      <h2 id="formTitle">Ajouter une dépense</h2>
+      <form id="expenseForm">
+        <input type="hidden" id="editId">
+        <label for="date">Date</label><input id="date" type="date" required>
+        <label for="description">Désignation</label><input id="description" maxlength="90" placeholder="Ex. : Déjeuner" required>
+        <label for="category">Catégorie</label>
+        <select id="category" required>
+          <option value="Alimentation">Alimentation</option><option value="Transport">Transport</option>
+          <option value="Logement">Logement</option><option value="Santé">Santé</option>
+          <option value="Communication">Communication</option><option value="Loisirs">Loisirs</option>
+          <option value="Factures">Factures</option><option value="Autre">Autre</option>
+        </select>
+        <label for="amount">Montant (FCFA)</label><input id="amount" type="number" min="1" step="1" placeholder="Ex. : 2500" required>
+        <label for="note">Observation (facultatif)</label><textarea id="note" rows="2" placeholder="Un détail si nécessaire"></textarea>
+        <button class="full" id="saveBtn" type="submit">Enregistrer la dépense</button>
+        <button class="full secondary" id="cancelEdit" type="button" hidden>Annuler la modification</button>
+        <div id="notice" aria-live="polite"></div>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Historique des dépenses</h2>
+      <div class="filters">
+        <div><label for="monthFilter">Choisir un mois</label><input id="monthFilter" type="month"></div>
+        <div><label for="dayFilter">Filtrer par jour</label><input id="dayFilter" type="date"></div>
+        <button class="secondary" id="resetFilters" type="button">Réinitialiser</button>
+      </div>
+      <div class="summary"><span id="listCount">0 dépense</span><strong id="filteredTotal">Total : 0 FCFA</strong></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Désignation</th><th>Catégorie</th><th>Montant</th><th>Actions</th></tr></thead>
+        <tbody id="expenseRows"></tbody>
+      </table></div>
+      <div class="empty" id="emptyState">Aucune dépense pour cette période.</div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const today = new Date();
+const localDate = d => {const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+const monthNow = localDate(today).slice(0,7);
+let expenses = JSON.parse(localStorage.getItem('monBudgetExpenses') || '[]');
+$('date').value = localDate(today);
+$('monthFilter').value = monthNow;
+const money = n => new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
+const save = () => localStorage.setItem('monBudgetExpenses', JSON.stringify(expenses));
+function render(){
+  const day=localDate(today), month=monthNow;
+  const todays=expenses.filter(e=>e.date===day);
+  const monthly=expenses.filter(e=>e.date.startsWith(month));
+  $('todayTotal').innerHTML=money(todays.reduce((s,e)=>s+e.amount,0)).replace(' FCFA','')+' <small>FCFA</small>';
+  $('monthTotal').innerHTML=money(monthly.reduce((s,e)=>s+e.amount,0)).replace(' FCFA','')+' <small>FCFA</small>';
+  $('monthCount').textContent=monthly.length;
+  const selectedMonth=$('monthFilter').value;
+  const selectedDay=$('dayFilter').value;
+  let shown=expenses.filter(e=>(!selectedMonth||e.date.startsWith(selectedMonth))&&(!selectedDay||e.date===selectedDay));
+  shown.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  $('expenseRows').innerHTML=shown.map(e=>`<tr>
+    <td>${e.date.split('-').reverse().join('/')}</td><td>${escapeHtml(e.description)}${e.note?`<div style="color:#8991a2;font-size:12px">${escapeHtml(e.note)}</div>`:''}</td>
+    <td><span class="category">${escapeHtml(e.category)}</span></td><td class="amount">${money(e.amount)}</td>
+    <td><button class="secondary" onclick="editExpense(${e.id})" aria-label="Modifier">Modifier</button> <button class="danger" onclick="deleteExpense(${e.id})" aria-label="Supprimer">Suppr.</button></td></tr>`).join('');
+  $('emptyState').style.display=shown.length?'none':'block';
+  $('listCount').textContent=shown.length+' dépense(s)';
+  $('filteredTotal').textContent='Total : '+money(shown.reduce((s,e)=>s+e.amount,0));
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('expenseForm').addEventListener('submit',ev=>{
+  ev.preventDefault();
+  const id=$('editId').value;
+  const item={id:id?Number(id):Date.now(),date:$('date').value,description:$('description').value.trim(),category:$('category').value,amount:Number($('amount').value),note:$('note').value.trim()};
+  if(!item.date||!item.description||!Number.isFinite(item.amount)||item.amount<=0)return;
+  if(id) expenses=expenses.map(e=>e.id===Number(id)?item:e); else expenses.push(item);
+  save();resetForm();render();$('notice').textContent=id?'Dépense modifiée.':'Dépense enregistrée.';
+});
+function resetForm(){ $('expenseForm').reset();$('date').value=localDate(new Date());$('editId').value='';$('formTitle').textContent='Ajouter une dépense';$('saveBtn').textContent='Enregistrer la dépense';$('cancelEdit').hidden=true; }
+window.editExpense=id=>{const e=expenses.find(x=>x.id===id);if(!e)return;$('editId').value=e.id;$('date').value=e.date;$('description').value=e.description;$('category').value=e.category;$('amount').value=e.amount;$('note').value=e.note;$('formTitle').textContent='Modifier la dépense';$('saveBtn').textContent='Enregistrer les modifications';$('cancelEdit').hidden=false;$('notice').textContent='';window.scrollTo({top:0,behavior:'smooth'});};
+window.deleteExpense=id=>{if(confirm('Supprimer cette dépense ?')){expenses=expenses.filter(e=>e.id!==id);save();render();}};
+$('cancelEdit').addEventListener('click',resetForm);
+$('monthFilter').addEventListener('change',()=>{$('dayFilter').value='';render();});
+$('dayFilter').addEventListener('change',render);
+$('resetFilters').addEventListener('click',()=>{$('monthFilter').value=monthNow;$('dayFilter').value='';render();});
+render();
+</script>
+</body>
+</html>
