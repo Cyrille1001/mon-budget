@@ -25,7 +25,7 @@ main{max-width:1080px;margin:0 auto;padding:18px 15px 30px}.page{display:none}.p
 .stat-row{display:flex;align-items:center;gap:9px;margin:13px 0}.stat-label{flex:1;min-width:0;font-size:11px}.bar{height:7px;background:#eef1f7;border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3157d5,#6e8af0);border-radius:9px}.stat-value{font-size:11px;font-weight:800;white-space:nowrap}
 .budget-track{height:10px;margin:8px 0 4px}.budget-track i{background:linear-gradient(90deg,#16845b,#39b987)}.budget-track i.over{background:linear-gradient(90deg,#c44757,#e87984)}
 .month-bars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;height:140px;padding-top:12px}.month-col{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-width:0}.month-bar-wrap{height:105px;width:100%;display:flex;align-items:flex-end;justify-content:center}.month-bar{width:min(24px,70%);min-height:3px;background:linear-gradient(180deg,#6e8af0,#3157d5);border-radius:7px 7px 3px 3px}.month-name{font-size:9px;color:var(--muted)}.month-val{font-size:8px;color:var(--muted);white-space:nowrap}
-.bottom-nav{position:fixed;z-index:30;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:#ffffffed;backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}.nav-btn{border:0;background:transparent;color:#8791a7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;font-size:10px;font-weight:750;min-width:0}.nav-icon{font-size:19px;line-height:1.1}.nav-btn.active{color:var(--blue)}.nav-btn.add .nav-icon{width:32px;height:29px;border-radius:10px;background:var(--blue);color:white;display:grid;place-items:center}
+.bottom-nav{position:fixed;z-index:30;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:#ffffffed;backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}.nav-btn{border:0;background:transparent;color:#8791a7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px;font-size:10px;font-weight:750;min-width:0}.nav-icon{font-size:19px;line-height:1.1}.nav-btn.active{color:var(--blue)}.nav-btn.add .nav-icon{width:32px;height:29px;border-radius:10px;background:var(--blue);color:white;display:grid;place-items:center}
 .tools{display:flex;gap:8px;flex-wrap:wrap}.tools .btn{flex:1}
 @media(min-width:780px){body{padding-bottom:0}.bottom-nav{position:static;max-width:1080px;margin:0 auto 18px;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);grid-template-columns:repeat(4,1fr)}.nav-btn{flex-direction:row;font-size:12px;gap:7px}.nav-icon{font-size:16px}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.hero{margin:0;height:100%;min-height:150px}.metric{padding:16px}.layout-wide{display:grid;grid-template-columns:1fr 1fr;gap:13px}}
 @media(max-width:420px){main{padding-left:12px;padding-right:12px}.top{padding-left:14px;padding-right:14px}.today-chip{font-size:9px;padding:7px}.brand h1{font-size:18px}.heading h2{font-size:17px}.heading .btn{padding:9px 10px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.expense{gap:8px;padding:9px}.expense-ico{width:34px;height:34px;flex-basis:34px}.expense-amount{font-size:11px}.actions button{font-size:9px}}
@@ -42,12 +42,7 @@ main{max-width:1080px;margin:0 auto;padding:18px 15px 30px}.page{display:none}.p
   <div class="metric"><div class="metric-head"><span>Opérations</span><span class="metric-icon">▤</span></div><div class="metric-value" id="homeCount">0</div><div class="metric-sub">Ce mois-ci</div></div>
   <div class="metric"><div class="metric-head"><span>Moyenne / jour</span><span class="metric-icon">◷</span></div><div class="metric-value" id="homeAverage">0 FCFA</div><div class="metric-sub">Sur les jours écoulés</div></div>
  </div></div>
- <div class="panel" id="budgetPanel">
-  <div class="panel-title"><h3>Mon budget du mois</h3><span class="metric-icon">🎯</span></div>
-  <div class="field"><label for="monthlyBudget">Fixer une limite mensuelle (FCFA)</label><input id="monthlyBudget" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex. : 150000"></div>
-  <div class="form-actions"><button class="btn soft" id="saveBudget" type="button">Enregistrer le budget</button></div>
-  <div id="budgetProgress" hidden><div class="summary"><span id="budgetSpentLabel">Dépensé</span><strong id="budgetSpent">0 FCFA</strong></div><div class="bar budget-track"><i id="budgetBar" style="width:0%"></i></div><div class="summary"><span id="budgetRemainingLabel">Reste disponible</span><strong id="budgetRemaining">0 FCFA</strong></div><div class="notice" id="budgetMessage" aria-live="polite"></div></div>
- </div>
+ 
  <div class="quick"><button onclick="showPage('add')"><span class="quick-icon">＋</span>Nouvelle dépense</button><button onclick="showPage('stats')"><span class="quick-icon">▥</span>Voir les statistiques</button></div>
  <div class="panel"><div class="panel-title"><h3>Dernières dépenses</h3><button class="text-link" onclick="showPage('expenses')">Tout voir →</button></div><div class="list" id="recentList"></div></div>
 </section>
@@ -79,6 +74,16 @@ main{max-width:1080px;margin:0 auto;padding:18px 15px 30px}.page{display:none}.p
   <div class="form-actions"><button class="btn primary" id="saveBtn" type="submit">Enregistrer</button><button class="btn soft" id="cancelEdit" type="button" hidden>Annuler</button></div><div class="notice" id="notice" aria-live="polite"></div>
  </form></div>
 </section>
+<section class="page" id="page-budget">
+ <div class="heading"><div><h2>Mon budget</h2><p>Définissez votre limite et suivez votre solde.</p></div></div>
+ <div class="panel" id="budgetPanel">
+  <div class="panel-title"><h3>Mon budget du mois</h3><span class="metric-icon">🎯</span></div>
+  <div class="field"><label for="monthlyBudget">Fixer une limite mensuelle (FCFA)</label><input id="monthlyBudget" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex. : 150000"></div>
+  <div class="form-actions"><button class="btn soft" id="saveBudget" type="button">Enregistrer le budget</button></div>
+  <div id="budgetProgress" hidden><div class="summary"><span id="budgetSpentLabel">Dépensé</span><strong id="budgetSpent">0 FCFA</strong></div><div class="bar budget-track"><i id="budgetBar" style="width:0%"></i></div><div class="summary"><span id="budgetRemainingLabel">Reste disponible</span><strong id="budgetRemaining">0 FCFA</strong></div><div class="notice" id="budgetMessage" aria-live="polite"></div></div>
+ </div>
+ <div class="panel"><div class="panel-title"><h3>Conseil</h3><span class="metric-icon">💡</span></div><p style="font-size:11px;color:var(--muted);line-height:1.6;margin:0">Fixez un budget réaliste au début de chaque mois. Le suivi se met à jour automatiquement à chaque dépense enregistrée.</p></div>
+</section>
 <section class="page" id="page-stats">
  <div class="heading"><div><h2>Statistiques</h2><p>Analysez l'évolution de vos dépenses.</p></div></div>
  <div class="hero"><div class="hero-label">Total dépensé ce mois</div><div class="hero-amount" id="statsTotal">0 FCFA</div><div class="hero-foot" id="statsSubtitle">0 opération</div></div>
@@ -91,6 +96,7 @@ main{max-width:1080px;margin:0 auto;padding:18px 15px 30px}.page{display:none}.p
 <nav class="bottom-nav" aria-label="Navigation principale">
  <button class="nav-btn active" data-page="home" onclick="showPage('home')"><span class="nav-icon">⌂</span><span>Accueil</span></button>
  <button class="nav-btn" data-page="expenses" onclick="showPage('expenses')"><span class="nav-icon">☷</span><span>Dépenses</span></button>
+ <button class="nav-btn" data-page="budget" onclick="showPage('budget')"><span class="nav-icon">🎯</span><span>Budget</span></button>
  <button class="nav-btn" data-page="stats" onclick="showPage('stats')"><span class="nav-icon">▥</span><span>Stats</span></button>
 </nav>
 <script>
